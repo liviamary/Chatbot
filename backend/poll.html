@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audience Polling | Live Demo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="demo-ui.css">
+</head>
+<body class="app-body">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+
+    <div class="shell">
+        <header class="topbar">
+            <div class="topbar-left">
+                <a class="brand" href="index.html">
+                    <span class="brand-mark">AI</span>
+                    <span class="brand-copy">
+                        <strong>Ask Anything</strong>
+                        <small>Audience polling</small>
+                    </span>
+                </a>
+            </div>
+
+            <nav class="topnav">
+                
+                <a class="nav-link" href="chat.html">Chat</a>
+                <a class="nav-link active" href="poll.html">Polling</a>
+            </nav>
+        </header>
+
+        <main class="poll-main">
+            <section class="poll-hero">
+                <div class="eyebrow">Live Demo Queue</div>
+                <h1 class="poll-hero-title">AUDIENCE<br>POLLING</h1>
+                <p class="poll-hero-copy">
+                    Let the audience submit questions during the session, show everything that has been asked, and
+                    surface the most-voted questions as the live demo queue.
+                </p>
+            </section>
+
+            <section class="poll-layout">
+                <div class="poll-column">
+                    <article class="poll-form-card">
+                        <span class="side-label">Submit a question</span>
+                        <form class="poll-form" id="pollForm">
+                            <div class="field-row">
+                                <label class="field-label" for="pollNameInput">Your name</label>
+                                <input
+                                    id="pollNameInput"
+                                    class="neon-input"
+                                    type="text"
+                                    maxlength="60"
+                                    placeholder="Optional"
+                                    autocomplete="off"
+                                >
+                            </div>
+
+                            <div class="field-row">
+                                <label class="field-label" for="pollQuestionInput">Audience question</label>
+                                <textarea
+                                    id="pollQuestionInput"
+                                    class="poll-textarea"
+                                    maxlength="280"
+                                    placeholder="Ask something you want answered live..."
+                                ></textarea>
+                            </div>
+
+                            <div class="field-footer">
+                                <span class="char-count" id="pollCharCount">0 / 280</span>
+                                <button class="primary-btn" id="pollSubmitBtn" type="submit">Submit</button>
+                            </div>
+                            <p class="poll-helper">
+                                Everyone can vote on the most important questions, and the top queue can guide the live demo.
+                            </p>
+                        </form>
+                    </article>
+
+                </div>
+
+                <div class="queue-column">
+                    <section class="poll-stats">
+                        <article class="stat-card">
+                            <strong class="stat-value" id="pollStatQuestions">0</strong>
+                            <span class="stat-label">Questions</span>
+                        </article>
+                        <article class="stat-card">
+                            <strong class="stat-value" id="pollStatVotes">0</strong>
+                            <span class="stat-label">Votes</span>
+                        </article>
+                        <article class="stat-card">
+                            <strong class="stat-value" id="pollStatPeople">0</strong>
+                            <span class="stat-label">People</span>
+                        </article>
+                    </section>
+
+                    <article class="poll-queue-card">
+                        <div class="question-head">
+                            <span class="side-label">Top-voted live queue</span>
+                            <span class="question-meta">Answer these first in the demo</span>
+                        </div>
+                        <p class="poll-queue-copy">
+                            These are the questions currently leading the live demo queue based on audience votes.
+                        </p>
+                        <div class="poll-queue-list" id="pollTopList"></div>
+                    </article>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div class="toast" id="pollToast"></div>
+    <script src="api-config.js"></script>
+    <script src="poll.js"></script>
+</body>
+</html>

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ask Anything | Live Demo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="demo-ui.css">
+</head>
+<body class="app-body">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+
+    <div class="shell shell-home shell-home-poster">
+        <header class="topbar topbar-home">
+            <a class="brand" href="index.html">
+                <span class="brand-mark">AI</span>
+                <span class="brand-copy">
+                    <strong>Ask Anything</strong>
+                    <small>Live demo experience</small>
+                </span>
+            </a>
+
+            <nav class="topnav">
+                
+                <a class="nav-link active" href="index.html">Chat</a>
+                <a class="nav-link" href="poll.html">Polling</a>
+            </nav>
+        </header>
+
+        <main class="home-stage home-stage-poster">
+            <section class="home-hero home-hero-poster">
+                <div class="hack-badge">WIPRO x SADARRA - AI HACKATHON 2026</div>
+                <h1 class="hero-title">ASK<br>ANYTHING</h1>
+                <p class="home-copy home-copy-poster">
+                    Start the assistant experience here, then jump into live polling whenever you want the audience to vote.
+                </p>
+
+                <div class="home-visual home-visual-poster">
+                    <div class="ring ring-a"></div>
+                    <div class="ring ring-b"></div>
+                    <div class="ring ring-c"></div>
+                    <div class="hero-core">
+                        <span>AI</span>
+                        <small>CHAT</small>
+                    </div>
+                </div>
+
+                <form class="landing-launch-form" id="launchForm">
+                    <div class="landing-input-wrap">
+                        <textarea
+                            id="launchInput"
+                            class="neon-input landing-textarea"
+                            placeholder="Type your question for the live demo..."
+                        ></textarea>
+                        <span class="char-count">Press enter or use the button to open chat</span>
+                    </div>
+                    <button class="landing-submit-btn" type="submit">Open Chat</button>
+                </form>
+
+                <section class="landing-suggestions" aria-label="Suggested questions">
+                    <p class="landing-suggestions-label">Try one of these:</p>
+                    <div class="landing-suggestion-list">
+                        <button class="landing-suggestion-chip js-launch-prompt" type="button" data-prompt="Explain the EOS architecture in simple words.">
+                            Explain the EOS architecture
+                        </button>
+                        <button class="landing-suggestion-chip js-launch-prompt" type="button" data-prompt="What business value does this platform create?">
+                            Business value
+                        </button>
+                        <button class="landing-suggestion-chip js-launch-prompt" type="button" data-prompt="How does the SAP integration work in this solution?">
+                            SAP integration
+                        </button>
+                        <button class="landing-suggestion-chip js-launch-prompt" type="button" data-prompt="Which AI agents are included and what do they do?">
+                            AI agents
+                        </button>
+                    </div>
+                </section>
+            </section>
+        </main>
+    </div>
+
+    <div class="toast" id="appToast"></div>
+    <script src="api-config.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
