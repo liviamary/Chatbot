@@ -24,31 +24,31 @@ from langchain_community.document_loaders import (
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from flask import send_from_directory
 
-@app.route("/")
-def serve_index():
-    return send_from_directory(".", "index.html")
-
-@app.route("/chat.html")
-def serve_chat():
-    return send_from_directory(".", "chat.html")
-
-@app.route("/poll.html")
-def serve_poll():
-    return send_from_directory(".", "poll.html")
 
 app = Flask(__name__)
 CORS(app)
+# ✅ Home
 @app.route("/")
 def serve_index():
     return send_from_directory(".", "index.html")
 
-@app.route("/chat.html")
+# ✅ Chat page
+@app.route("/chat")
 def serve_chat():
     return send_from_directory(".", "chat.html")
 
-@app.route("/poll.html")
+# ✅ Poll page
+@app.route("/poll")
 def serve_poll():
     return send_from_directory(".", "poll.html")
+
+@app.route("/<path:filename>")
+def serve_static(filename):
+    return send_from_directory(".", filename)
+
+@app.route("styles.css")
+def serve_static():
+    return send_from_directory(".", filename)
 BASE_DIR = Path(__file__).resolve().parent
 POLL_STORE_PATH = BASE_DIR / "poll_questions.json"
 EMBEDDING_BACKEND = os.getenv("EMBEDDING_BACKEND", "local-hash")
