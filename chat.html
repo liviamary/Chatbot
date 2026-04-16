@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Assistant | Chat</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="demo-ui.css">
+</head>
+<body class="app-body">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+
+    <div class="shell chat-shell-simple">
+        <header class="topbar">
+            <div class="topbar-left">
+                <a class="brand" href="index.html">
+                    <span class="brand-mark">AI</span>
+                    <span class="brand-copy">
+                        <strong>AI Assistant</strong>
+                        <small>Chat workspace</small>
+                    </span>
+                </a>
+            </div>
+
+            <nav class="topnav">
+                <a class="nav-link" href="poll.html">Polling</a>
+                <button class="secondary-btn topbar-action" id="newChatBtn" type="button">New Chat</button>
+            </nav>
+        </header>
+
+        <main class="chat-main-simple">
+            <section class="chat-stage chat-stage-wide">
+                <div class="chat-room-header">
+                    <div>
+                        <div class="eyebrow">Conversation</div>
+                        <h1 class="thread-title">Chat With The Assistant</h1>
+                        <p class="thread-copy thread-copy-compact">
+                            Ask a question, continue the thread, and let the answer stream in naturally.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="chat-empty" id="chatEmptyState">
+                    <div class="chat-empty-icon">AI</div>
+                    <h2>Start the conversation</h2>
+                    <p>Ask anything you want to cover in the live demo and the assistant will respond here.</p>
+                </div>
+
+                <div class="chat-messages" id="chatMessages"></div>
+            </section>
+        </main>
+
+        <footer class="composer-bar">
+            <div class="composer">
+                <input
+                    class="composer-input"
+                    id="messageInput"
+                    type="text"
+                    placeholder="Ask a question for the live demo..."
+                    autocomplete="off"
+                >
+                <button class="primary-btn send-btn" id="sendBtn" type="button">Send</button>
+            </div>
+        </footer>
+    </div>
+
+    <div class="toast" id="appToast"></div>
+    <script src="app.js"></script>
+</body>
+</html>
