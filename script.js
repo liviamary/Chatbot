@@ -27,7 +27,7 @@ async function streamRagResponse(userInput,onUpdate){
 
 try{
 
-const res = await fetch(`${API_BASE_URL}/chat/stream`,{
+const res = await fetch(`${API_BASE_URL}/chat`,{
 method:"POST",
 headers:{
 "Content-Type":"application/json"
@@ -38,28 +38,20 @@ conversation_id:conversationId
 })
 });
 
-if(!res.ok || !res.body){
-throw new Error("Backend returned an error.");
+if(!res.ok){
+throw new Error("Backend error");
 }
 
-const reader = res.body.getReader();
-const decoder = new TextDecoder();
-let fullText = "";
+const data = await res.json();
 
-while(true){
-const {value,done} = await reader.read();
-if(done) break;
+const answer = data.response || data.answer || "No response";
 
-const token = decoder.decode(value,{stream:true});
-fullText += token;
-onUpdate(fullText);
-}
-
-return fullText;
+onUpdate(answer);
+return answer;
 
 }catch(e){
 
-const fallback = "I'm having trouble connecting to the AI backend. Start the Flask server from the backend folder, then try again.";
+const fallback = "Backend is waking up or facing an issue. Please wait a few seconds and try again.";
 onUpdate(fallback);
 return fallback;
 
