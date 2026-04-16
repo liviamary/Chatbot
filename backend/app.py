@@ -22,6 +22,19 @@ from langchain_community.document_loaders import (
     TextLoader,
 )
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+from flask import send_from_directory
+
+@app.route("/")
+def serve_index():
+    return send_from_directory(".", "index.html")
+
+@app.route("/chat.html")
+def serve_chat():
+    return send_from_directory(".", "chat.html")
+
+@app.route("/poll.html")
+def serve_poll():
+    return send_from_directory(".", "poll.html")
 
 app = Flask(__name__)
 CORS(app)
