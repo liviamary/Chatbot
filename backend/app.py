@@ -46,9 +46,7 @@ def serve_poll():
 def serve_static(filename):
     return send_from_directory(".", filename)
 
-@app.route("styles.css")
-def serve_static():
-    return send_from_directory(".", filename)
+
 BASE_DIR = Path(__file__).resolve().parent
 POLL_STORE_PATH = BASE_DIR / "poll_questions.json"
 EMBEDDING_BACKEND = os.getenv("EMBEDDING_BACKEND", "local-hash")
