@@ -1,7 +1,7 @@
 (function() {
     "use strict";
 
-    const API_BASE_URL = "http://127.0.0.1:5000";
+    const API_BASE_URL = "https://chatbot-1-4giu.onrender.com";
     const POLL_REFRESH_MS = 8000;
     const POLL_USER_KEY = "pollUserId";
     const POLL_DRAFT_KEY = "pollDraftQuestion";
