@@ -22,29 +22,25 @@ from langchain_community.document_loaders import (
     TextLoader,
 )
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from flask import send_from_directory
 
 
 app = Flask(__name__)
 CORS(app)
 # ✅ Home
-@app.route("/")
+# Legacy page decorators are defined near the bottom of the file.
 def serve_index():
-    return send_from_directory(".", "index.html")
+    return send_from_directory(BASE_DIR, "index.html")
 
 # ✅ Chat page
-@app.route("/chat")
 def serve_chat():
-    return send_from_directory(".", "chat.html")
+    return send_from_directory(BASE_DIR, "chat.html")
 
 # ✅ Poll page
-@app.route("/poll")
 def serve_poll():
-    return send_from_directory(".", "poll.html")
+    return send_from_directory(BASE_DIR, "poll.html")
 
-@app.route("/<path:filename>")
 def serve_static(filename):
-    return send_from_directory(".", filename)
+    return send_from_directory(BASE_DIR, filename)
 
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -2795,19 +2791,22 @@ def health():
     })
 
 
-FRONTEND_DIR = BASE_DIR.parent
+FRONTEND_DIR = BASE_DIR
 
 
 @app.route("/")
+@app.route("/index.html")
 def home():
     return send_from_directory(FRONTEND_DIR, "index.html")
 
 
+@app.route("/chat")
 @app.route("/chat.html")
 def chat_page():
     return send_from_directory(FRONTEND_DIR, "chat.html")
 
 
+@app.route("/poll")
 @app.route("/poll.html")
 def poll_page():
     return send_from_directory(FRONTEND_DIR, "poll.html")

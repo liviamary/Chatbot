@@ -259,7 +259,7 @@
                 if (!queued) {
                     return;
                 }
-                window.location.href = "poll.html";
+                window.location.href = "/poll";
             } finally {
                 button.disabled = false;
                 button.textContent = "Raise To Poll";
@@ -418,7 +418,7 @@
         }
 
         sessionStorage.setItem("initialMessage", prompt);
-        window.location.href = "chat.html";
+        window.location.href = "/chat";
     }
 
     function initLandingPage() {
