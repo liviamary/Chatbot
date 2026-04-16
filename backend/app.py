@@ -38,7 +38,17 @@ def serve_poll():
 
 app = Flask(__name__)
 CORS(app)
+@app.route("/")
+def serve_index():
+    return send_from_directory(".", "index.html")
 
+@app.route("/chat.html")
+def serve_chat():
+    return send_from_directory(".", "chat.html")
+
+@app.route("/poll.html")
+def serve_poll():
+    return send_from_directory(".", "poll.html")
 BASE_DIR = Path(__file__).resolve().parent
 POLL_STORE_PATH = BASE_DIR / "poll_questions.json"
 EMBEDDING_BACKEND = os.getenv("EMBEDDING_BACKEND", "local-hash")
