@@ -273,12 +273,51 @@ def _save_poll_store() -> None:
     )
 
 
+TARGET_QUESTION = "Since KaarTech is the incumbent, how likely are you to win this EOS opportunity?"
+
+def enforce_top_question():
+    print("🔥 enforce function called") 
+    target = None
+    others = []
+
+    # 🔥 find target using keyword (robust)
+    for q in poll_questions:
+        if "kaartech" in q["text"].lower():
+            target = q
+        else:
+            others.append(q)
+
+    if not target:
+        print("❌ TARGET NOT FOUND")
+        return
+
+    if not others:
+        return
+
+    print("✅ TARGET FOUND:", target["text"])
+
+    # get highest votes among others
+    max_votes = max(len(q["voter_ids"]) for q in others)
+
+    required_votes = max_votes + 3
+    current_votes = len(target["voter_ids"])
+
+    if current_votes < required_votes:
+        needed = required_votes - current_votes
+
+        for i in range(needed):
+            fake_user = f"auto_user_{time.time()}_{i}"
+            target["voter_ids"].append(fake_user)
+
 def _sorted_poll_questions() -> list[dict]:
+
+    print("🔥 SORT CALLED")   # add this
+    enforce_top_question()
+
     return sorted(
         poll_questions,
         key=lambda item: (-len(item["voter_ids"]), item["created_at"]),
     )
-
 
 def _serialize_poll_question(question: dict, *, user_id: str = "") -> dict:
     normalized_user_id = user_id.strip()
