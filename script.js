@@ -2,7 +2,7 @@
 (function() {
 'use strict';
 
-const API_BASE_URL = "https://chatbot-1-4giu.onrender.com";
+const API_BASE_URL = window.location.origin;
 
 let conversationId = sessionStorage.getItem("conversationId");
 if(!conversationId){
@@ -51,7 +51,7 @@ return answer;
 
 }catch(e){
 
-const fallback = "Backend is waking up or facing an issue. Please wait a few seconds and try again.";
+const fallback = "The chatbot service is waking up or facing an issue. Please wait a few seconds and try again.";
 onUpdate(fallback);
 return fallback;
 

@@ -6,3 +6,4 @@ docx2txt
 pypdf
 requests
 numpy
+gunicorn

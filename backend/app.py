@@ -29,12 +29,13 @@ CORS(app)
 BASE_DIR = Path(__file__).resolve().parent
 POLL_STORE_PATH = BASE_DIR / "poll_questions.json"
 EMBEDDING_BACKEND = os.getenv("EMBEDDING_BACKEND", "local-hash")
-OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3.2:1b")
-OLLAMA_URL = os.getenv("OLLAMA_URL", "http://127.0.0.1:11434/api/chat")
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "").strip()
+GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.1-8b-instant")
+GROQ_API_URL = os.getenv("GROQ_API_URL", "https://api.groq.com/openai/v1/chat/completions")
 MAX_HISTORY_TURNS = 4
 MAX_CONTEXT_CHARS = 2200
 MAX_ANSWER_TOKENS = int(os.getenv("MAX_ANSWER_TOKENS", "1000"))
-GENERATION_BACKEND = os.getenv("GENERATION_BACKEND", "fast-natural")
+GENERATION_BACKEND = os.getenv("GENERATION_BACKEND", "groq").strip().lower()
 STREAM_WORD_DELAY = float(os.getenv("STREAM_WORD_DELAY", "0.018"))
 NOT_FOUND_ANSWER = "I could not find that exact detail stated in the document."
 STOPWORDS = {
@@ -2292,6 +2293,110 @@ def scrub_forbidden_phrases(text: str) -> str:
     return re.sub(r"\bthe platform material\b", "the material", cleaned)
 
 
+def _llm_system_message() -> str:
+    return (
+        "You are a document-grounded enterprise AI consultant. "
+        "Use the supplied context first, but if the user asks about a broader concept that is not really covered there, answer it with clear general knowledge and then connect it back to the platform. Answer the exact question first, expand naturally in a conversational tone, prefer detailed answers, never use phrases like 'not explicitly stated in the document', and avoid the phrase 'Smart i-Shield' in the final answer."
+    )
+
+
+def generate_with_groq(prompt: str) -> tuple[str | None, str | None]:
+    if not GROQ_API_KEY:
+        return None, "Groq API key is missing."
+
+    payload = {
+        "model": GROQ_MODEL,
+        "messages": [
+            {"role": "system", "content": _llm_system_message()},
+            {"role": "user", "content": prompt},
+        ],
+        "temperature": 0.25,
+        "top_p": 0.85,
+        "max_tokens": MAX_ANSWER_TOKENS,
+        "stream": False,
+    }
+    headers = {
+        "Authorization": f"Bearer {GROQ_API_KEY}",
+        "Content-Type": "application/json",
+    }
+
+    try:
+        response = requests.post(GROQ_API_URL, json=payload, headers=headers, timeout=180)
+
+        if response.status_code >= 400:
+            try:
+                error_message = response.json().get("error", {}).get("message", response.text)
+            except ValueError:
+                error_message = response.text
+            return None, f"Groq error: {error_message}"
+
+        data = response.json()
+        choices = data.get("choices") or []
+        content = choices[0].get("message", {}).get("content") if choices else None
+
+        if not content:
+            return None, "Groq returned an empty response."
+
+        return clean_llm_answer(content), None
+
+    except Exception as exc:
+        return None, f"Groq connection error: {exc}"
+
+
+def stream_with_groq(prompt: str):
+    if not GROQ_API_KEY:
+        yield "", "Groq API key is missing."
+        return
+
+    payload = {
+        "model": GROQ_MODEL,
+        "messages": [
+            {"role": "system", "content": _llm_system_message()},
+            {"role": "user", "content": prompt},
+        ],
+        "temperature": 0.25,
+        "top_p": 0.85,
+        "max_tokens": MAX_ANSWER_TOKENS,
+        "stream": True,
+    }
+    headers = {
+        "Authorization": f"Bearer {GROQ_API_KEY}",
+        "Content-Type": "application/json",
+    }
+
+    try:
+        with requests.post(GROQ_API_URL, json=payload, headers=headers, stream=True, timeout=180) as response:
+            if response.status_code >= 400:
+                try:
+                    error_message = response.json().get("error", {}).get("message", response.text)
+                except ValueError:
+                    error_message = response.text
+                yield "", f"Groq error: {error_message}"
+                return
+
+            for line in response.iter_lines(decode_unicode=True):
+                if not line or not line.startswith("data:"):
+                    continue
+
+                chunk = line[5:].strip()
+                if not chunk or chunk == "[DONE]":
+                    continue
+
+                try:
+                    data = json.loads(chunk)
+                except json.JSONDecodeError:
+                    continue
+
+                choices = data.get("choices") or []
+                delta = choices[0].get("delta", {}) if choices else {}
+                content = delta.get("content", "")
+                if content:
+                    yield clean_stream_token(content), None
+
+    except Exception as exc:
+        yield "", f"Groq connection error: {exc}"
+
+
 def generate_with_ollama(prompt: str) -> tuple[str | None, str | None]:
     system_message = (
         "You are a document-grounded enterprise AI consultant. "
@@ -2418,7 +2523,13 @@ def chat():
     retrieval_question = resolve_question(question, history)
     contexts = retrieve_context(retrieval_question, top_k=6)
 
-    if GENERATION_BACKEND == "ollama":
+    if GENERATION_BACKEND == "groq":
+        prompt = build_prompt(question, contexts, history)
+        answer, llm_error = generate_with_groq(prompt)
+
+        if not answer:
+            answer = fallback_answer(question, contexts, llm_error=llm_error)
+    elif GENERATION_BACKEND == "ollama":
         prompt = build_prompt(question, contexts, history)
         answer, llm_error = generate_with_ollama(prompt)
 
@@ -2472,7 +2583,23 @@ def chat_stream():
 
     @stream_with_context
     def generate():
-        if GENERATION_BACKEND == "ollama":
+        if GENERATION_BACKEND == "groq":
+            prompt = build_prompt(question, contexts, history)
+            answer_parts = []
+            llm_error = None
+
+            for token, error in stream_with_groq(prompt):
+                if error:
+                    llm_error = error
+                    break
+                if token:
+                    answer_parts.append(token)
+
+            answer = scrub_forbidden_phrases("".join(answer_parts).strip())
+
+            if not answer:
+                answer = scrub_forbidden_phrases(fallback_answer(question, contexts, llm_error=llm_error))
+        elif GENERATION_BACKEND == "ollama":
             prompt = build_prompt(question, contexts, history)
             answer_parts = []
             llm_error = None
@@ -2596,6 +2723,15 @@ def vote_poll_question(question_id: str):
         "action": action,
         "question": _serialize_poll_question(question, user_id=user_id),
         "poll": payload,
+    })
+
+
+@app.route("/health")
+def health():
+    return jsonify({
+        "status": "ok",
+        "generation_backend": GENERATION_BACKEND,
+        "groq_configured": bool(GROQ_API_KEY),
     })
 
 

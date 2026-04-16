@@ -1,7 +1,7 @@
 (function() {
     "use strict";
 
-    const API_BASE_URL = "http://127.0.0.1:5000";
+    const API_BASE_URL = window.location.origin;
     const POLL_DRAFT_KEY = "pollDraftQuestion";
     const FOLLOW_UP_SUGGESTIONS = [
         "Explain the architecture in detail",
@@ -325,7 +325,7 @@
 
             return fullText;
         } catch (error) {
-            const fallback = "I couldn't connect to the backend right now. Start the Flask server in the backend folder and try again.";
+            const fallback = "I couldn't connect to the chatbot service right now. Please try again in a few seconds.";
             onUpdate(fallback);
             return fallback;
         }
