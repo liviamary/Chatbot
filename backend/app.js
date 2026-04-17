@@ -17,7 +17,6 @@
     }
 
     let isResponding = false;
-    let lastUserQuestion = "";
     let latestBotMessage = null;
     let hasShownBackendOfflineToast = false;
 
@@ -194,12 +193,12 @@
         document.querySelectorAll(".message-followups").forEach((element) => element.remove());
     }
 
-    function showFollowUps() {
-        if (!latestBotMessage) {
+    function showFollowUps(targetMessage = latestBotMessage) {
+        if (!targetMessage) {
             return;
         }
 
-        const existing = latestBotMessage.querySelector(".message-followups");
+        const existing = targetMessage.querySelector(".message-followups");
         if (existing) {
             existing.remove();
         }
@@ -218,7 +217,9 @@
             wrap.appendChild(chip);
         });
 
-        latestBotMessage.appendChild(wrap);
+        targetMessage.appendChild(wrap);
+        latestBotMessage = targetMessage;
+        scrollToBottom(document.getElementById("chatMessages"));
     }
 
     function createMessageMeta(type) {
@@ -271,6 +272,25 @@
         return cta;
     }
 
+    function attachBotActions(message, questionText) {
+        if (!message) {
+            return;
+        }
+
+        const existingCta = message.querySelector(".message-poll-cta");
+        if (existingCta) {
+            existingCta.remove();
+        }
+
+        const normalizedQuestion = (questionText || "").trim();
+        if (normalizedQuestion) {
+            message.appendChild(createRaisePollCta(normalizedQuestion));
+        }
+
+        latestBotMessage = message;
+        scrollToBottom(document.getElementById("chatMessages"));
+    }
+
     function addMessageToChat(container, text, type) {
         if (!container) {
             return null;
@@ -286,16 +306,11 @@
         message.appendChild(bubble);
         message.appendChild(createMessageMeta(type));
 
-        if (type === "bot" && lastUserQuestion) {
-            message.appendChild(createRaisePollCta(lastUserQuestion));
-            latestBotMessage = message;
-        }
-
         container.appendChild(message);
 
         toggleEmptyState();
         scrollToBottom(container);
-        return bubble;
+        return { message, bubble };
     }
 
     function showTyping(container) {
@@ -387,26 +402,26 @@
             return;
         }
 
-        lastUserQuestion = message;
         hideFollowUps();
         addMessageToChat(chat, message, "user");
         input.value = "";
 
         setRespondingState(true);
         showTyping(chat);
-        const botBubble = addMessageToChat(chat, "", "bot");
+        const botMessage = addMessageToChat(chat, "", "bot");
 
         await streamRagResponse(message, (partialAnswer) => {
             removeTyping();
-            if (botBubble) {
-                botBubble.innerHTML = formatMessage(partialAnswer);
+            if (botMessage?.bubble) {
+                botMessage.bubble.innerHTML = formatMessage(partialAnswer);
                 scrollToBottom(chat);
             }
         });
 
         removeTyping();
+        attachBotActions(botMessage?.message, message);
         setRespondingState(false);
-        showFollowUps();
+        showFollowUps(botMessage?.message);
         input.focus();
     }
 
@@ -472,7 +487,6 @@
                 conversationId = createConversationId();
                 sessionStorage.setItem("conversationId", conversationId);
                 sessionStorage.removeItem("initialMessage");
-                lastUserQuestion = "";
                 latestBotMessage = null;
                 if (chat) {
                     chat.innerHTML = "";
